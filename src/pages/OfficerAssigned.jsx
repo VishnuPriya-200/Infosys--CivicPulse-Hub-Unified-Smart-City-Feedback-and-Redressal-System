@@ -6,7 +6,7 @@ const OfficerAssigned = () => {
     const [uploadMap, setUploadMap] = useState({});
 
     const officer = JSON.parse(localStorage.getItem("officer"));
-    const officerId = officer?._id || officer?.id;
+    const officerId = officer?.id || officer?._id;
 
     useEffect(() => {
         if (!officerId) return;
@@ -20,7 +20,7 @@ const OfficerAssigned = () => {
             .catch(() => setLoading(false));
     }, [officerId]);
 
-    // RESOLVE HANDLER (correct backend API)
+    // RESOLVE HANDLER
     const handleResolved = async (compId) => {
         const file = uploadMap[compId];
         if (!file) {
@@ -53,20 +53,21 @@ const OfficerAssigned = () => {
             <h1 style={styles.heading}>Assigned Complaints</h1>
 
             {loading && <p style={styles.info}>Loading...</p>}
-
             {!loading && complaints.length === 0 && (
                 <p style={styles.info}>No assigned complaints.</p>
             )}
 
             <div style={styles.cardList}>
                 {complaints.map((c) => (
-                    <div key={c.id || c._id} style={styles.card}>
+                    <div key={c.id} style={styles.card}>
                         <h2 style={styles.title}>{c.category}</h2>
+
                         <p><b>Name:</b> {c.name}</p>
                         <p><b>Location:</b> {c.location}</p>
                         <p><b>Description:</b> {c.description}</p>
                         <p><b>Status:</b> {c.status}</p>
 
+                        {/* VIEW COMPLAINT IMAGE */}
                         {c.imagePath && (
                             <button
                                 style={styles.viewBtn}
@@ -79,6 +80,20 @@ const OfficerAssigned = () => {
                             </button>
                         )}
 
+                        {/* ⭐ CITIZEN FEEDBACK DISPLAY */}
+                        {c.rating && (
+                            <div style={styles.feedbackBox}>
+                                <p><b>Citizen Rating:</b> {c.rating} ⭐</p>
+                                {c.feedbackNote && (
+                                    <p><b>Feedback:</b> {c.feedbackNote}</p>
+                                )}
+                                {c.reopened && (
+                                    <p style={{ color: "red", fontWeight: "bold" }}>
+                                        Complaint Reopened due to low rating
+                                    </p>
+                                )}
+                            </div>
+                        )}
 
                         {/* UPLOAD + RESOLVE */}
                         {c.status !== "Resolved" ? (
@@ -121,7 +136,13 @@ const styles = {
         marginBottom: 20,
     },
     info: { textAlign: "center", fontSize: 16, color: "#555" },
-    cardList: { maxWidth: 850, margin: "0 auto", display: "flex", flexDirection: "column", gap: 18 },
+    cardList: {
+        maxWidth: 850,
+        margin: "0 auto",
+        display: "flex",
+        flexDirection: "column",
+        gap: 18,
+    },
     card: {
         background: "white",
         padding: 20,
@@ -155,5 +176,12 @@ const styles = {
         fontSize: 16,
         color: "green",
         fontWeight: "bold",
+    },
+    feedbackBox: {
+        marginTop: 12,
+        padding: 12,
+        background: "#f0fdf4",
+        borderRadius: 8,
+        border: "1px solid #22c55e",
     },
 };

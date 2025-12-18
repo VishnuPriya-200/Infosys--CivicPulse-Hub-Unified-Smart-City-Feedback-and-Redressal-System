@@ -188,17 +188,24 @@ public class ComplaintController {
         String note = (String) body.get("note");
         boolean reopen = (boolean) body.get("reopen");
 
-        // ⭐ If rating ≤ 2 → reopen complaint
+        // ⭐ SAVE FEEDBACK PROPERLY
+        complaint.setRating(rating);
+        complaint.setFeedbackNote(note);
+        complaint.setReopened(reopen);
+
+        // ⭐ REOPEN LOGIC (UNCHANGED)
         if (reopen) {
             complaint.setStatus("Pending");
-            complaint.setResolvedImagePath(""); // remove old resolved image
+            complaint.setResolvedImagePath("");
         }
-
-        // (OPTIONAL) You can store note/rating later if you add fields
 
         complaintRepository.save(complaint);
 
-        return Map.of("message",
-                reopen ? "Complaint reopened due to low feedback!" : "Feedback submitted successfully!");
+        return Map.of(
+                "message",
+                reopen
+                        ? "Complaint reopened due to low feedback!"
+                        : "Feedback submitted successfully!");
     }
+
 }
